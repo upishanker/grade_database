@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Database
+grades.db
 # C extensions
 *.so
 
