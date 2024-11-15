@@ -1,17 +1,13 @@
-from student import Student
-from course import Course
-from assignment import Assignment
-import menu
+from database import init_db
+from menu import Menu
 
-menu.menu()
+def main():
+  # Initialize the database
+    init_db()
+  
+  # Create and start the menu
+    menu = Menu()
+    menu.start()
 
-
-
-
-
-
-
-
-
-
-        
+if __name__ == "__main__":
+    main()
