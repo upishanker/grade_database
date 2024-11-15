@@ -20,7 +20,6 @@ class Course:
             c.id,
             c.name,
             c.hours,
-            COALESCE(SUM(a.grade * a.weight), 0) as current_grade,
             COUNT(a.id) as assignment_count
         FROM courses c
         LEFT JOIN assignments a ON c.id = a.course_id
@@ -52,9 +51,10 @@ class Course:
         headers = ["#", "Course Name", "Credit Hours", "Current Grade", "Assignments"]
         table_data = []
         
-        for idx, (course_id, name, hours, current_grade, assignment_count) in enumerate(courses, 1):
+        for idx, (course_id, name, hours, assignment_count) in enumerate(courses, 1):
             # Format current grade to 2 decimal places if it exists
-            grade_display = f"{current_grade}%" if current_grade is not None else "N/A"
+            current_grade = Course.calculate_current_grade(course_id)
+            grade_display = f"{current_grade:.2f}%" if current_grade is not None else "N/A"
             
             table_data.append([
                 idx,
@@ -79,7 +79,7 @@ class Course:
                 choice_idx = int(choice) - 1
                 
                 if 0 <= choice_idx < len(courses):
-                    course_id, name, hours, _, _ = courses[choice_idx]
+                    course_id, name, hours, _ = courses[choice_idx]
                     return Course(name, hours, course_id, user_id)
                 else:
                     print("Invalid choice. Please try again.")
@@ -154,7 +154,8 @@ class Course:
         finally:
             conn.close()
 
-    def calculate_current_grade(self):
+    @staticmethod
+    def calculate_current_grade(course_id):
         """Calculate the current grade for the course."""
         conn = connect_db()
         cursor = get_cursor(conn)
@@ -165,8 +166,8 @@ class Course:
                     COALESCE(SUM(grade * weight), 0) as total_grade,
                     COALESCE(SUM(weight), 0) as total_weight
                 FROM assignments
-                WHERE course_id = ? AND grade IS NOT NULL
-            """, (self.course_id,))
+                WHERE course_id = ? AND grade IS NOT NULL AND grade != -1
+            """, (course_id,))
             
             result = cursor.fetchone()
             if result:
