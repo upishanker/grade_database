@@ -4,6 +4,7 @@ from course import Course
 from assignment import Assignment
 from session import Session
 from tabulate import tabulate
+import getpass 
 
 class Menu:
     def main_menu(self):
@@ -60,7 +61,7 @@ class Menu:
                 
             elif choice == "1":
                 username = input("Username: ")
-                password = input("Password: ")
+                password = getpass.getpass("Password: ")
                 user = User.authenticate(username, password)
                 if user:
                     self.session.login(user)
