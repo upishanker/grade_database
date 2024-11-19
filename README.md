@@ -5,8 +5,8 @@ This is a command-line application built with Python and SQLite that helps stude
 ## Features
 
 * User authentication (login/registration)
-* Add and remove courses
-* Add and remove assignments for each course
+* Add, edit, remove courses
+* Add, edit, remove assignments for each course
 * Input grades for assignments
 * Calculate and display weighted grades for each course
 * Persistent data storage using SQLite
