@@ -94,7 +94,6 @@ class Course:
         """Save or update the course in the database."""
         conn = connect_db()
         cursor = get_cursor(conn)
-        
         try:
             if self.course_id is None:
                 # New course
@@ -119,6 +118,25 @@ class Course:
         finally:
             conn.close()
 
+    def update(self, option):
+        conn = connect_db()
+        cursor = get_cursor(conn)
+        if option == "1":
+            name = input("Enter the new name: ")
+            try:
+                cursor.execute("UPDATE courses SET name = ? WHERE id = ?", (name, self.course_id))
+            except Exception as e:
+                conn.rollback()
+                print(f"Error updating name: {e}")
+        if option == "2":
+            hours = input("Enter the new hours: ")
+            try:
+                cursor.execute("UPDATE courses SET hours = ? WHERE id = ?", (hours, self.course_id))
+            except Exception as e:
+                conn.rollback()
+                print(f"Error updating hours: {e}")
+        conn.commit()
+        conn.close()
     def remove(self):
         """Remove the course and its assignments from the database."""
         conn = connect_db()

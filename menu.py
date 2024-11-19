@@ -13,38 +13,57 @@ class Menu:
         
         while True:
             print("\nGrade Calculator Menu")
-            print("1: Add Course")
-            print("2: Add Assignment")
-            print("3: Remove Course")
-            print("4: Remove Assignment")
-            print("5: List Courses")
-            print("6: List Assignments")
-            print("7: Logout")
-            print("0: Exit")
+            print("1: Manage Courses")
+            print("2: Manage Assignments")
+            print("3: List Courses")
+            print("4: List Assignments")
+            print("5: Logout")
+            print("6: Exit")
 
             choice = input("\nChoose an option: ")
 
             if choice == "0":
                 return False
-            elif choice == "7":
+            if choice == "1":
+                print("\nManage Courses: ")
+                print("1: Add Course")
+                print("2: Edit Course")
+                print("3: Remove Course")
+                cchoice = input("\nChoose an option: ")
+                options = {
+                "1": self.add_course,
+                "2": self.edit_course,
+                "3": self.remove_course,
+            }
+                if cchoice in options:
+                    options[cchoice](current_user.user_id)
+                else:
+                    print("\nInvalid option. Please try again.")
+
+            if choice == "2":
+                print("\nManage Assignments: ")
+                print("1: Add Assignment")
+                print("2: Edit Assignment")
+                print("3: Remove Assignment")
+                cchoice = input("\nChoose an option: ")
+                options = {
+                "1": self.add_assignment,
+                "2": self.edit_assignment,
+                "3": self.remove_assignment,
+            }
+                if cchoice in options:
+                    options[cchoice](current_user.user_id)
+                else:
+                    print("\nInvalid option. Please try again.")
+            if choice == "3":
+                self.list_courses(current_user.user_id)
+            if choice == "4":
+                self.list_assignments(current_user.user_id)
+            elif choice == "5":
                 self.session.logout()
                 print("\nLogged out successfully")
                 return True
-
-            # Menu options that require a logged-in user
-            options = {
-                "1": self.add_course,
-                "2": self.add_assignment,
-                "3": self.remove_course,
-                "4": self.remove_assignment,
-                "5": self.list_courses,
-                "6": self.list_assignments
-            }
-
-            if choice in options:
-                options[choice](current_user.user_id)
-            else:
-                print("\nInvalid option. Please try again.")
+            
 
     def login_menu(self):
         """Display and handle the login menu."""
@@ -110,6 +129,24 @@ class Menu:
         except Exception as e:
             print(f"Error adding course: {e}")
 
+    def edit_course(self, user_id):
+        course = Course.choose_course(user_id, True)
+        print("Select a value to edit: ")
+        print("1: Name")
+        print("2: Hours")
+        option = input("Choose an option: ")
+        course.update(option) 
+    def remove_course(self, user_id):
+        """Remove a course and all its assignments."""
+        course = Course.choose_course(user_id, True)
+        if course:
+            confirm = input(f"\nAre you sure you want to delete '{course.name}' and all its assignments? (y/n): ")
+            while confirm.lower() != 'y' and confirm.lower() != 'n':
+                print("Please enter y or n.")
+                confirm = input(f"\nAre you sure you want to delete '{course.name}' and all its assignments? (y/n): ")
+            if confirm.lower() == 'y':
+                course.remove()
+            
     def add_assignment(self, user_id):
         """Add a new assignment to a course."""
         course = Course.choose_course(user_id, True)
@@ -146,18 +183,16 @@ class Menu:
 
         except Exception as e:
             print(f"Error adding assignment: {e}")
-
-    def remove_course(self, user_id):
-        """Remove a course and all its assignments."""
+    
+    def edit_assignment(self, user_id):
         course = Course.choose_course(user_id, True)
-        if course:
-            confirm = input(f"\nAre you sure you want to delete '{course.name}' and all its assignments? (y/n): ")
-            while confirm.lower() != 'y' and confirm.lower() != 'n':
-                print("Please enter y or n.")
-                confirm = input(f"\nAre you sure you want to delete '{course.name}' and all its assignments? (y/n): ")
-            if confirm.lower() == 'y':
-                course.remove()
-            
+        assignment = Assignment.list_assignments(course.course_id, True)
+        print("Select a value to edit")
+        print("1: Name")
+        print("2: Grade")
+        print("3: Weight")
+        option = input("Choose an option: ")
+        assignment.update(option)
     def remove_assignment(self, user_id):
         """Remove an assignment from a course."""
         course = Course.choose_course(user_id, True)

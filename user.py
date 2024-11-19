@@ -1,5 +1,6 @@
 from database import connect_db, get_cursor
 from werkzeug.security import generate_password_hash, check_password_hash
+import sqlite3
 
 class User:
     def __init__(self, username, user_id=None):

@@ -37,7 +37,7 @@ class Assignment:
             return []
 
     @staticmethod
-    def list_assignments(course_id):
+    def list_assignments(course_id, option=False):
         """Display all assignments for a course."""
         assignments = Assignment.get_course_assignments(course_id)
         
@@ -56,19 +56,31 @@ class Assignment:
             grade_display = f"{grade:.2f}" if grade is not None else "Not graded"
             table_data.append([idx, name, f"{weight:.2f}", grade_display])
             
-            total_weight += weight
-            if grade is not None:
-                weighted_grade += grade * weight
 
         # Print formatted table
         print("\nAssignments:")
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
         
-        # Print summary
-        print(f"\nTotal weight: {total_weight:.2f}%")
-        if total_weight > 0:
-            final_grade = weighted_grade / 100
-            print(f"Current weighted grade: {final_grade:.2f}%")
+        while option:
+            try:
+                choice = input("\nEnter the number of the assignment (0 to cancel): ")
+                
+                if choice.strip() == "0":
+                    return None
+                
+                choice_idx = int(choice) - 1
+                
+                if 0 <= choice_idx < len(assignments):
+                    course_id, name, hours, _ = assignments[choice_idx]
+                    return Assignment(name, hours, course_id)
+                else:
+                    print("Invalid choice. Please try again.")
+            
+            except ValueError:
+                print("Please enter a valid number.")
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                return None
 
     def save(self):
         """Save or update the assignment in the database."""
@@ -99,6 +111,32 @@ class Assignment:
         finally:
             conn.close()
 
+    def update(self, option):
+        conn = connect_db()
+        cursor = get_cursor(conn)
+        if option == "1":
+            name = input("Enter the new name: ")
+            try:
+                cursor.execute("UPDATE assignments SET name = ? WHERE id = ?", (name, self.assignment_id))
+            except Exception as e:
+                conn.rollback()
+                print(f"Error updating name: {e}")
+        if option == "2":
+            grade = input("Enter the new grade: ")
+            try:
+                cursor.execute("UPDATE assignments SET grade = ? WHERE id = ?", (grade, self.assignment_id))
+            except Exception as e:
+                conn.rollback()
+                print(f"Error updating grade: {e}")
+        if option == "3":
+            weight = input("Enter the new weight: ")
+            try:
+                cursor.execute("UPDATE assignments SET weight = ? WHERE id = ?", (weight, self.assignment_id))
+            except Exception as e:
+                conn.rollback()
+                print(f"Error updating weight: {e}")
+        conn.commit()
+        conn.close()
     def remove(self):
         """Remove the assignment from the database."""
         conn = connect_db()
