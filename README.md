@@ -1,4 +1,4 @@
-# Grade Calculator
+# Grade Database
 
 This is a command-line application built with Python and SQLite that helps students manage and calculate their course grades.  Users can add courses, assignments, input grades, and view their overall weighted grade for each course.
 
